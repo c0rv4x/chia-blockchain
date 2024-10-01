@@ -597,7 +597,7 @@ class TestDIDWallet:
         await time_out_assert(15, did_wallet.get_confirmed_balance, 101)
         await time_out_assert(15, did_wallet.get_unconfirmed_balance, 101)
         coin = await did_wallet.get_coin()
-        info = []
+        info: List[Tuple[bytes, bytes, int]] = []
         pubkey = (await did_wallet.wallet_state_manager.get_unused_derivation_record(did_wallet.wallet_info.id)).pubkey
         with pytest.raises(Exception):  # We expect a CLVM 80 error for this test
             async with did_wallet.wallet_state_manager.new_action_scope(DEFAULT_TX_CONFIG, push=False) as action_scope:
@@ -663,8 +663,7 @@ class TestDIDWallet:
                 await wallet_node.wallet_state_manager.get_all_wallet_info_entries(),
             )
         )
-        assert wallet_node.wallet_state_manager.wallets[did_wallets[0].id] is not None
-        did_wallet = wallet_node.wallet_state_manager.wallets[did_wallets[0].id]
+        did_wallet = wallet_node.wallet_state_manager.get_wallet(id=uint32(did_wallets[0].id), required_type=DIDWallet)
         await time_out_assert(15, did_wallet.get_confirmed_balance, 101)
         await time_out_assert(15, did_wallet.get_unconfirmed_balance, 101)
         # Spend DID
@@ -906,7 +905,7 @@ class TestDIDWallet:
                 await wallet_node_2.wallet_state_manager.get_all_wallet_info_entries(),
             )
         )
-        did_wallet_2: DIDWallet = wallet_node_2.wallet_state_manager.wallets[did_wallets[0].id]
+        did_wallet_2: DIDWallet = wallet_node.wallet_state_manager.get_wallet(id=uint32(did_wallets[0].id), required_type=DIDWallet)
         assert len(wallet_node.wallet_state_manager.wallets) == 1
         assert did_wallet_1.did_info.origin_coin == did_wallet_2.did_info.origin_coin
         if with_recovery:
@@ -1335,7 +1334,7 @@ class TestDIDWallet:
 
         bad_metadata = {"Twitter": {"url": "http://www.twitter.com"}}
         with pytest.raises(ValueError) as e:
-            await did_wallet_1.update_metadata(bad_metadata)  #noqa
+            await did_wallet_1.update_metadata(bad_metadata)  # noqa
         assert e.match("Metadata key value pairs must be strings.")
 
         metadata = {}
