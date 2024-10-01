@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import pytest
 from chia_rs import AugSchemeMPL, G1Element, G2Element
