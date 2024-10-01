@@ -905,7 +905,9 @@ class TestDIDWallet:
                 await wallet_node_2.wallet_state_manager.get_all_wallet_info_entries(),
             )
         )
-        did_wallet_2: DIDWallet = wallet_node.wallet_state_manager.get_wallet(id=uint32(did_wallets[0].id), required_type=DIDWallet)
+        did_wallet_2: DIDWallet = wallet_node.wallet_state_manager.get_wallet(
+            id=uint32(did_wallets[0].id), required_type=DIDWallet
+        )
         assert len(wallet_node.wallet_state_manager.wallets) == 1
         assert did_wallet_1.did_info.origin_coin == did_wallet_2.did_info.origin_coin
         if with_recovery:
@@ -1334,7 +1336,7 @@ class TestDIDWallet:
 
         bad_metadata = {"Twitter": {"url": "http://www.twitter.com"}}
         with pytest.raises(ValueError) as e:
-            await did_wallet_1.update_metadata(bad_metadata)   # type: ignore
+            await did_wallet_1.update_metadata(bad_metadata)  # type: ignore
         assert e.match("Metadata key value pairs must be strings.")
 
         metadata = {}
