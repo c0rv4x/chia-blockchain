@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import pytest
 from chia_rs import AugSchemeMPL, G1Element, G2Element
@@ -12,6 +12,9 @@ from chia._tests.util.setup_nodes import OldSimulatorsAndWallets
 from chia._tests.util.time_out_assert import time_out_assert
 from chia.rpc.wallet_request_types import DIDGetCurrentCoinInfo, DIDGetRecoveryInfo
 from chia.rpc.wallet_rpc_api import WalletRpcApi
+from chia.server.server import ChiaServer
+from chia.simulator.block_tools import BlockTools
+from chia.simulator.full_node_simulator import FullNodeSimulator
 from chia.simulator.simulator_protocol import FarmNewBlockProtocol
 from chia.types.blockchain_format.program import Program
 from chia.types.blockchain_format.sized_bytes import bytes32
@@ -26,6 +29,7 @@ from chia.wallet.singleton import create_singleton_puzzle
 from chia.wallet.util.address_type import AddressType
 from chia.wallet.util.tx_config import DEFAULT_TX_CONFIG
 from chia.wallet.util.wallet_types import WalletType
+from chia.wallet.wallet_node import WalletNode
 from chia.wallet.wallet_spend_bundle import WalletSpendBundle
 
 
@@ -44,8 +48,8 @@ class TestDIDWallet:
     )
     @pytest.mark.anyio
     async def test_creation_from_coin_spend(
-        self, self_hostname, two_nodes_two_wallets_with_same_keys: OldSimulatorsAndWallets, trusted
-    ):
+        self, self_hostname: str, two_nodes_two_wallets_with_same_keys: OldSimulatorsAndWallets, trusted: bool
+    ) -> None:
         """
         Verify that DIDWallet.create_new_did_wallet_from_coin_spend() is called after Singleton creation on
         the blockchain, and that the wallet is created in the second wallet node.
@@ -426,7 +430,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_recovery_with_multiple_backup_dids(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_did_recovery_with_multiple_backup_dids(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
         server_1 = full_node_api.server
@@ -548,7 +557,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_recovery_with_empty_set(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_did_recovery_with_empty_set(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
         server_1 = full_node_api.server
@@ -596,7 +610,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_find_lost_did(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_did_find_lost_did(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
         server_1 = full_node_api.server
@@ -674,7 +693,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_attest_after_recovery(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_did_attest_after_recovery(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
         server_1 = full_node_api.server
@@ -814,7 +838,13 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_transfer(self, self_hostname, two_wallet_nodes, with_recovery, trusted):
+    async def test_did_transfer(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        with_recovery: bool,
+        trusted: bool,
+    ) -> None:
         fee = uint64(1000)
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -894,7 +924,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_auto_transfer_limit(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_did_auto_transfer_limit(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         fee = uint64(1000)
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -1047,7 +1082,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_update_recovery_list(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_update_recovery_list(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
         server_1 = full_node_api.server
@@ -1094,7 +1134,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_get_info(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_get_info(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         fee = uint64(1000)
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -1180,7 +1225,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_message_spend(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_message_spend(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         fee = uint64(1000)
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -1231,7 +1281,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_update_metadata(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_update_metadata(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         fee = uint64(1000)
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -1302,7 +1357,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_sign_message(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_did_sign_message(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         fee = uint64(1000)
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -1412,7 +1472,9 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_create_did_with_recovery_list(self, self_hostname, two_nodes_two_wallets_with_same_keys, trusted):
+    async def test_create_did_with_recovery_list(
+        self, self_hostname: str, two_nodes_two_wallets_with_same_keys: OldSimulatorsAndWallets, trusted: bool
+    ) -> None:
         """
         A DID is created on-chain in client0, causing a DID Wallet to be created in client1, which shares the same key.
         This can happen if someone uses the same key on multiple computers, or is syncing a wallet from scratch.
@@ -1494,7 +1556,12 @@ class TestDIDWallet:
         [True, False],
     )
     @pytest.mark.anyio
-    async def test_did_resync(self, self_hostname, two_wallet_nodes, trusted) -> None:
+    async def test_did_resync(
+        self,
+        self_hostname: str,
+        two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
+        trusted: bool,
+    ) -> None:
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
         full_node_server = full_node_api.full_node.server
