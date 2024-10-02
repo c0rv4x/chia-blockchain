@@ -745,7 +745,7 @@ class TestDIDWallet:
         assert did_wallet_2.did_info.backup_ids == recovery_list
 
         # Update coin with new ID info
-        recovery_list = [bytes32(bytes.fromhex(did_wallet_2.get_my_DID()))]
+        recovery_list = [bytes32.fromhex(did_wallet_2.get_my_DID())]
         await did_wallet.update_recovery_list(recovery_list, uint64(1))
         assert did_wallet.did_info.backup_ids == recovery_list
         async with did_wallet.wallet_state_manager.new_action_scope(DEFAULT_TX_CONFIG, push=True) as action_scope:
