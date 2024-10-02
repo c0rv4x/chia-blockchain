@@ -486,7 +486,7 @@ class TestDIDWallet:
 
         assert did_wallet_2.did_info.backup_ids == recovery_list
 
-        recovery_list.append(bytes32(bytes.fromhex(did_wallet_2.get_my_DID())))
+        recovery_list.append(bytes32.fromhex(did_wallet_2.get_my_DID()))
 
         async with wallet2.wallet_state_manager.new_action_scope(DEFAULT_TX_CONFIG, push=True) as action_scope:
             did_wallet_3: DIDWallet = await DIDWallet.create_new_did_wallet(
